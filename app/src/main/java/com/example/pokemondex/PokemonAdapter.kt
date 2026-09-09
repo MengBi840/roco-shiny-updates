@@ -20,6 +20,7 @@ class PokemonAdapter(
 
     var unlockedProvider: ((name: String) -> Boolean)? = null
     var unlockMode: Boolean = false
+    var night: Boolean = false
 
     private var season: String = ""
     private var visiblePokemon: List<Pokemon> = emptyList()
@@ -50,6 +51,13 @@ class PokemonAdapter(
     override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
         val pokemon = visiblePokemon[position]
         holder.nameView.text = pokemon.name
+        val primary = if (night) Color.parseColor("#E6EAF2") else Color.parseColor("#263238")
+        val sub = if (night) Color.parseColor("#B6C0D4") else Color.parseColor("#616161")
+        holder.nameView.setTextColor(primary)
+        holder.attrText1.setTextColor(sub)
+        holder.attrText2.setTextColor(sub)
+        holder.itemView.setBackgroundResource(if (night) R.drawable.bg_row_dark else R.drawable.bg_row)
+        holder.placeholderView.setBackgroundResource(if (night) R.drawable.bg_placeholder_dark else R.drawable.bg_placeholder)
 
         val unlocked = unlockedProvider?.invoke(pokemon.name) ?: false
         bindAvatar(holder, pokemon, unlocked)
