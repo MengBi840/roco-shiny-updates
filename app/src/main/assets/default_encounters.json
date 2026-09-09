@@ -1,0 +1,12 @@
+{
+  "encounters": [
+    { "pet": "小灵菇", "season": "S4", "start": "09-11", "end": "09-14", "ball": "甜蜜球" },
+    { "pet": "叮叮卯", "season": "S4", "start": "09-18", "end": "09-21", "ball": "魅影球" },
+    { "pet": "刺轮砣", "season": "S4", "start": "09-25", "end": "09-28", "ball": "海灵球" },
+    { "pet": "逗逗", "season": "S4", "start": "10-07", "end": "10-08", "ball": "蜜桃球" },
+    { "pet": "瑰眼仔", "season": "S4", "start": "10-09", "end": "10-12", "ball": "甜蜜球" },
+    { "pet": "小黑猫", "season": "S4", "start": "10-16", "end": "10-19", "ball": "蜜桃球" },
+    { "pet": "芽眼魔", "season": "S4", "start": "10-23", "end": "10-26", "ball": "海灵球" },
+    { "pet": "觅觅蝠", "season": "S4", "start": "10-30", "end": "11-02", "ball": "海灵球" }
+  ]
+}
