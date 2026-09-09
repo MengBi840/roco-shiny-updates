@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="22dp"
+    android:paddingRight="22dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="发现新版本"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#1F6FD6" />
+
+    <TextView
+        android:id="@+id/tvUpdateVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="v1.4.1"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#263238" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="#DCECFA" />
+
+    <TextView
+        android:id="@+id/tvUpdateNotesLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="📝 更新公告"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#78909C"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/scrollUpdateNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:maxHeight="220dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvUpdateNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="#37474F"
+            android:lineSpacingExtra="3dp" />
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/tvUpdateExtra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="本更新说明由发布者填写，若有疑问请以其官方公告为准。"
+        android:textSize="11sp"
+        android:textColor="#9AA8B6"
+        android:visibility="gone" />
+
+</LinearLayout>
