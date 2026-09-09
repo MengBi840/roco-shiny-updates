@@ -8,11 +8,11 @@ import java.net.URL
 
 object UpdateChecker {
 
-    // 更新源：GitHub Releases（公开仓库）
+    // 更新源：GitHub Releases（公开仓库）。更新公告直接取 Release 的正文（body，由发布者填写）。
     const val OWNER = "MengBi840"
     const val REPO = "roco-shiny-updates"
 
-    fun check(onResult: (latestVersion: String, downloadUrl: String) -> Unit) {
+    fun check(onResult: (latestVersion: String, downloadUrl: String, notes: String) -> Unit) {
         Thread {
             try {
                 val conn = URL("https://api.github.com/repos/$OWNER/$REPO/releases/latest")
@@ -28,8 +28,9 @@ object UpdateChecker {
                 if (assets != null && assets.length() > 0) {
                     url = assets.getJSONObject(0).optString("browser_download_url", "")
                 }
+                val notes = json.optString("body", "").trim()
                 if (tag.isNotEmpty() && url.isNotEmpty()) {
-                    Handler(Looper.getMainLooper()).post { onResult(tag, url) }
+                    Handler(Looper.getMainLooper()).post { onResult(tag, url, notes) }
                 }
             } catch (e: Exception) {
             }
