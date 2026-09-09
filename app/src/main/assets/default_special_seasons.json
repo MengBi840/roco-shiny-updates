@@ -1,0 +1,22 @@
+{
+  "seasons": [
+    {
+      "season": "特殊异色",
+      "themeColor": "#8E24AA",
+      "groups": [
+        { "type": "特殊异色", "label": "特殊异色", "color": "#8E24AA", "badge": "特殊" }
+      ],
+      "pokemon": [
+        { "name": "疾光千兽", "type": "特殊异色", "attr1": "光", "category": "S1通行证", "img": "jiguangqianshou" },
+        { "name": "绒仙子", "type": "特殊异色", "attr1": "光", "category": "S1通行证", "img": "rongxianzi" },
+        { "name": "雅丹鬃", "type": "特殊异色", "attr1": "火", "category": "特殊异色", "img": "yadanzong" },
+        { "name": "雪怪", "type": "特殊异色", "attr1": "冰", "category": "S2通行证", "img": "xueguai" },
+        { "name": "爆焰飞龙", "type": "特殊异色", "attr1": "火", "category": "S2通行证" },
+        { "name": "胡桃王子", "type": "特殊异色", "attr1": "机械", "category": "S3通行证", "img": "hutaowangzi" },
+        { "name": "离心舞者", "type": "特殊异色", "attr1": "幻", "category": "S3通行证", "img": "lixinwuzhe" },
+        { "name": "月使鹭纳", "type": "特殊异色", "category": "S4通行证" },
+        { "name": "圣凯布米龙", "type": "特殊异色", "category": "S4通行证" }
+      ]
+    }
+  ]
+}
