@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -9,20 +10,66 @@
     android:paddingTop="12dp"
     android:paddingBottom="8dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="✦ 洛克精灵册 ✦"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#1F6FD6" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="✦ 洛克精灵册 ✦"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#1F6FD6" />
+
+        <FrameLayout
+            android:id="@+id/btnSettings"
+            android:layout_width="44dp"
+            android:layout_height="44dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="⚙"
+                android:textSize="22sp"
+                android:textColor="#4A90E2"
+                android:gravity="center" />
+
+            <View
+                android:id="@+id/settingsDot"
+                android:layout_width="11dp"
+                android:layout_height="11dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_dot"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnTheme"
+            android:layout_width="44dp"
+            android:layout_height="44dp">
+
+            <TextView
+                android:id="@+id/btnThemeIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="☀️"
+                android:textSize="20sp"
+                android:gravity="center" />
+        </FrameLayout>
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/contentContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="6dp">
 
         <LinearLayout
             android:id="@+id/pageTracking"
@@ -38,8 +85,8 @@
                 android:background="@drawable/bg_panel"
                 android:paddingLeft="12dp"
                 android:paddingRight="8dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -48,8 +95,8 @@
                     android:gravity="center_vertical">
 
                     <FrameLayout
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_marginEnd="8dp">
 
                         <TextView
@@ -58,7 +105,7 @@
                             android:layout_height="match_parent"
                             android:background="@drawable/bg_placeholder"
                             android:gravity="center"
-                            android:textSize="18sp"
+                            android:textSize="17sp"
                             android:textColor="#7FB3E0"
                             android:textStyle="bold" />
 
@@ -82,7 +129,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="本周大量出没"
-                            android:textSize="15sp"
+                            android:textSize="14sp"
                             android:textStyle="bold"
                             android:textColor="#263238" />
 
@@ -91,7 +138,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="日期 · 精灵球"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="#78909C" />
                     </LinearLayout>
 
@@ -107,15 +154,69 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/merchantCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_panel"
+                android:paddingLeft="12dp"
+                android:paddingRight="8dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🛒"
+                    android:textSize="18sp"
+                    android:layout_marginEnd="8dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="远行商人"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#263238" />
+
+                    <TextView
+                        android:id="@+id/tvMerchantStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="正在查询…"
+                        android:textSize="11sp"
+                        android:textColor="#78909C" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvMerchantOpen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="查看商品 ›"
+                    android:textSize="12sp"
+                    android:textColor="#4A90E2"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/seasonPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
                 android:orientation="vertical"
                 android:background="@drawable/bg_panel"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -127,7 +228,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="赛季："
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textColor="#37474F" />
 
                     <Spinner
@@ -136,20 +237,20 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="6dp"
-                        android:minHeight="40dp" />
+                        android:minHeight="36dp" />
                 </LinearLayout>
 
                 <View
                     android:id="@+id/vThemeLine"
                     android:layout_width="match_parent"
-                    android:layout_height="3dp"
+                    android:layout_height="2dp"
                     android:layout_marginTop="2dp"
                     android:background="#CFE3F5" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="2dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
@@ -157,8 +258,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="解锁模式（开启后点击精灵打勾 / 取消）"
-                        android:textSize="13sp"
+                        android:text="解锁模式（点击精灵打勾 / 取消）"
+                        android:textSize="12sp"
                         android:textColor="#78909C" />
 
                     <Switch
@@ -171,9 +272,9 @@
                     android:id="@+id/tvTypeProgress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:text="已解锁 0 / 0"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="#263238" />
 
@@ -181,16 +282,16 @@
                     android:id="@+id/tvSeasonProgress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="1dp"
                     android:text="赛季总进度: 0 / 0 (0%)"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:textColor="#78909C" />
 
                 <LinearLayout
                     android:id="@+id/tabContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:orientation="horizontal" />
             </LinearLayout>
 
@@ -199,7 +300,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:clipToPadding="false"
                 android:paddingBottom="4dp" />
         </LinearLayout>
@@ -212,9 +313,10 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:orientation="horizontal"
         android:background="@drawable/bg_panel"
         android:padding="6dp">
@@ -222,7 +324,7 @@
         <Button
             android:id="@+id/btnNav1"
             android:layout_width="0dp"
-            android:layout_height="46dp"
+            android:layout_height="44dp"
             android:layout_weight="1"
             android:text="异色追踪"
             android:textSize="14sp" />
@@ -230,7 +332,7 @@
         <Button
             android:id="@+id/btnNav2"
             android:layout_width="0dp"
-            android:layout_height="46dp"
+            android:layout_height="44dp"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
             android:text="精灵图鉴"
