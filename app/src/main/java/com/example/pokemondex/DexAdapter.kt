@@ -3,6 +3,7 @@ package com.example.pokemondex
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,8 @@ class DexAdapter(
     private val context: Context,
     private val onClick: (DexEntry) -> Unit
 ) : RecyclerView.Adapter<DexAdapter.DexViewHolder>() {
+
+    var night: Boolean = false
 
     private val items = ArrayList<DexEntry>()
     private val imageCache = object : LruCache<String, Bitmap>(maxMemory) {
@@ -42,6 +45,15 @@ class DexAdapter(
         val entry = items[position]
         holder.noView.text = "NO.${entry.no}"
         holder.nameView.text = entry.name
+        val primary = if (night) Color.parseColor("#E6EAF2") else Color.parseColor("#263238")
+        val sub = if (night) Color.parseColor("#B6C0D4") else Color.parseColor("#616161")
+        holder.nameView.setTextColor(primary)
+        holder.noView.setTextColor(if (night) Color.parseColor("#8FB9E8") else Color.parseColor("#4A90E2"))
+        holder.attrText1.setTextColor(sub)
+        holder.attrText2.setTextColor(sub)
+        holder.infoView.setTextColor(if (night) Color.parseColor("#9AA8B6") else Color.parseColor("#9AA8B6"))
+        holder.itemView.setBackgroundResource(if (night) R.drawable.bg_row_dark else R.drawable.bg_row)
+        holder.placeholderView.setBackgroundResource(if (night) R.drawable.bg_placeholder_dark else R.drawable.bg_placeholder)
 
         val bitmap = loadDexImage(entry.img)
         if (bitmap != null) {
