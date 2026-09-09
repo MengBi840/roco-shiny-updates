@@ -1,9 +1,10 @@
-﻿# 发布脚本：把 APK 上传到 GitHub Releases（需先设置环境变量 GITHUB_TOKEN）
-# 用法：$env:GITHUB_TOKEN = "ghp_..."    然后：
-#       powershell -NoProfile -ExecutionPolicy Bypass -File publish_release.ps1 -Version 1.4 -ApkPath "E:\D4HWORK\dist\洛克精灵册-v1.4-正式版.apk"
+﻿# 发布脚本：把 APK 上传到 GitHub Releases（token 可从环境变量或 E:\D4HWORK\.gh_token 读取）
+# 用法：powershell -NoProfile -ExecutionPolicy Bypass -File publish_release.ps1 -Version 1.5 -Notes "这里写更新公告"
+#       （默认不加 -Notes 时，公告正文留空，由你稍后到 GitHub Release 里自行填写，App 会显示为“更新公告”）
 param(
-    [string]$Version = "1.3",
-    [string]$ApkPath = "E:\D4HWORK\RocoShinyDex\app\build\outputs\apk\release\app-release.apk"
+    [string]$Version = "1.4",
+    [string]$ApkPath = "E:\D4HWORK\RocoShinyDex\app\build\outputs\apk\release\app-release.apk",
+    [string]$Notes = ""
 )
 $ErrorActionPreference = 'Stop'
 $OWNER = "MengBi840"
@@ -31,9 +32,9 @@ try {
     } catch { throw "创建仓库失败：$($_.Exception.Message)" }
 }
 
-# 2) 创建 Release
+# 2) 创建 Release（公告正文默认留空——由发布者自行填写，App 会把它显示为“更新公告”）
 $tag = "v$Version"
-$relBody = @{ tag_name = $tag; name = $tag; body = "洛克精灵册 v$Version 正式版"; draft = $false; prerelease = $false } | ConvertTo-Json
+$relBody = @{ tag_name = $tag; name = $tag; body = [string]$Notes; draft = $false; prerelease = $false } | ConvertTo-Json
 $release = Invoke-RestMethod -Uri "$api/repos/$OWNER/$REPO/releases" -Method Post -Headers $headers -ContentType "application/json" -Body $relBody
 Write-Output "已创建 Release：$tag (id=$($release.id))"
 
