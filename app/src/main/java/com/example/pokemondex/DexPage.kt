@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -40,7 +41,9 @@ class DexPage(private val context: Context, private val root: View) {
     private var all: List<DexEntry> = emptyList()
     private var attrFilter: String = ""
     private var eggFilter: String = ""
-    private var ascending = true
+    private var orderMode = 0
+    private var night = false
+    private val savedTextColors = HashMap<View, Int>()
     private val adapter = DexAdapter(context) { entry -> showDetail(entry) }
 
     fun init() {
@@ -78,6 +81,28 @@ class DexPage(private val context: Context, private val root: View) {
         applyFilters()
     }
 
+    fun setNight(night: Boolean) {
+        this.night = night
+        adapter.night = night
+        adapter.notifyDataSetChanged()
+        refreshChips()
+        applyFilters()
+        val light = Color.parseColor("#E6EAF2")
+        val sub = Color.parseColor("#B6C0D4")
+        fun walk(v: View) {
+            if (v is TextView && v !is Button) {
+                if (!savedTextColors.containsKey(v)) savedTextColors[v] = v.currentTextColor
+                val e = v as? EditText
+                v.setTextColor(if (night) light else savedTextColors[v] ?: light)
+                if (e != null) e.setHintTextColor(if (night) sub else Color.parseColor("#9AA8B6"))
+            }
+            if (v is ViewGroup) {
+                for (i in 0 until v.childCount) walk(v.getChildAt(i))
+            }
+        }
+        walk(root)
+    }
+
     private fun buildAttrChips() {
         llAttrChips.removeAllViews()
         val present = HashSet<String>()
@@ -107,8 +132,9 @@ class DexPage(private val context: Context, private val root: View) {
 
     private fun buildSortChips() {
         llSortChips.removeAllViews()
-        addChip(llSortChips, "编号 ↑", ascending) { ascending = true; refreshChips(); applyFilters() }
-        addChip(llSortChips, "编号 ↓", !ascending) { ascending = false; refreshChips(); applyFilters() }
+        addChip(llSortChips, "图鉴顺序", orderMode == 0) { orderMode = 0; refreshChips(); applyFilters() }
+        addChip(llSortChips, "编号 ↑", orderMode == 1) { orderMode = 1; refreshChips(); applyFilters() }
+        addChip(llSortChips, "编号 ↓", orderMode == 2) { orderMode = 2; refreshChips(); applyFilters() }
     }
 
     private fun refreshChips() {
@@ -134,10 +160,11 @@ class DexPage(private val context: Context, private val root: View) {
                 e.species.contains(keyword, ignoreCase = true)
             if (attrOk && eggOk && kwOk) result.add(e)
         }
-        result.sortWith(
-            if (ascending) compareBy<DexEntry> { it.no }.thenBy { it.name }
-            else compareByDescending<DexEntry> { it.no }.thenByDescending { it.name }
-        )
+        when (orderMode) {
+            1 -> result.sortBy { it.no }
+            2 -> result.sortByDescending { it.no }
+            else -> {}
+        }
         adapter.submit(result)
         tvDexCount.text = "${result.size} / ${all.size}"
     }
@@ -174,10 +201,12 @@ class DexPage(private val context: Context, private val root: View) {
     private fun styleChip(button: Button, active: Boolean) {
         val bg = GradientDrawable()
         bg.cornerRadius = dp(17).toFloat()
-        bg.setColor(Color.parseColor(if (active) COLOR_ACTIVE else COLOR_BG_INACTIVE))
+        val inactBg = if (night) "#3B465E" else COLOR_BG_INACTIVE
+        val inactText = if (night) "#B6C0D4" else COLOR_TEXT_INACTIVE
+        bg.setColor(Color.parseColor(if (active) COLOR_ACTIVE else inactBg))
         button.background = bg
         button.setTextColor(
-            Color.parseColor(if (active) COLOR_TEXT_ACTIVE else COLOR_TEXT_INACTIVE)
+            Color.parseColor(if (active) COLOR_TEXT_ACTIVE else inactText)
         )
     }
 
