@@ -10,6 +10,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.LruCache
 import android.view.View
 import android.widget.AdapterView
@@ -24,7 +26,20 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+private data class MerchantItem(
+    val name: String,
+    val category: String,
+    val price: String,
+    val limit: String
+)
 
 private data class EncounterRow(
     val pet: String,
@@ -40,6 +55,8 @@ class MainActivity : ComponentActivity() {
         private const val PREFS_NAME = "shiny_dex_prefs"
         private const val KEY_SEASONS_JSON = "seasons_json"
         private const val KEY_DATA_VERSION = "data_version"
+        private const val KEY_MERCHANT_HISTORY = "merchant_history"
+        private const val KEY_NIGHT = "night_mode"
         private const val DATA_VERSION = 3
         private const val ASSET_S4 = "default_s4_data.json"
         private const val ASSET_LEGACY = "default_legacy_seasons.json"
@@ -64,6 +81,33 @@ class MainActivity : ComponentActivity() {
     private lateinit var tvEncName: TextView
     private lateinit var tvEncInfo: TextView
     private lateinit var tvEncExpand: TextView
+    private lateinit var btnSettings: View
+    private lateinit var settingsDot: View
+    private lateinit var merchantCard: View
+    private lateinit var tvMerchantStatus: TextView
+    private lateinit var tvMerchantOpen: TextView
+    private var hasUpdate = false
+    private var latestVersion = ""
+    private var updateUrl = ""
+    private var updateNotes = ""
+    private var merchantItems: List<MerchantItem> = emptyList()
+    private var merchantRound = ""
+    private var merchantNext = ""
+    private lateinit var btnTheme: View
+    private lateinit var btnThemeIcon: TextView
+    private lateinit var seasonPanel: View
+    private lateinit var bottomNav: View
+    private var nightMode = false
+    private val savedColors = HashMap<View, Int>()
+    private var currentPage = 0
+    private var merchantNextMs = 0L
+    private val merchantHandler = Handler(Looper.getMainLooper())
+    private val merchantTicker = object : Runnable {
+        override fun run() {
+            updateMerchantStatus()
+            merchantHandler.postDelayed(this, 1000L)
+        }
+    }
     private lateinit var pageTracking: LinearLayout
     private lateinit var pageDex: android.widget.FrameLayout
     private lateinit var btnNav1: Button
@@ -123,10 +167,33 @@ class MainActivity : ComponentActivity() {
         btnNav1.setOnClickListener { showPage(0) }
         btnNav2.setOnClickListener { showPage(1) }
 
+        btnSettings = findViewById(R.id.btnSettings)
+        settingsDot = findViewById(R.id.settingsDot)
+        merchantCard = findViewById(R.id.merchantCard)
+        tvMerchantStatus = findViewById(R.id.tvMerchantStatus)
+        tvMerchantOpen = findViewById(R.id.tvMerchantOpen)
+        btnSettings.setOnClickListener { showSettingsDialog() }
+        tvMerchantOpen.setOnClickListener { openMerchantDialog() }
+        merchantCard.setOnClickListener { openMerchantDialog() }
+        fetchMerchant()
+
+        btnTheme = findViewById(R.id.btnTheme)
+        btnThemeIcon = findViewById(R.id.btnThemeIcon)
+        seasonPanel = findViewById(R.id.seasonPanel)
+        bottomNav = findViewById(R.id.bottomNav)
+        nightMode = prefs.getBoolean(KEY_NIGHT, false)
+        btnTheme.setOnClickListener { applyTheme(!nightMode) }
+        applyTheme(nightMode)
+
         renderEncounter()
 
         loadSeasons()
         checkForUpdate()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        merchantHandler.removeCallbacks(merchantTicker)
     }
 
     private fun loadSeasons() {
@@ -294,23 +361,27 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun inactiveBgHex(): String = if (nightMode) "#3B465E" else COLOR_BG_INACTIVE
+    private fun inactiveTextHex(): String = if (nightMode) "#B6C0D4" else COLOR_TEXT_INACTIVE
+
     private fun styleTabButton(button: Button, active: Boolean, colorHex: String) {
         val bg = GradientDrawable()
         bg.cornerRadius = dp(23).toFloat()
-        bg.setColor(if (active) parseColor(colorHex, DEFAULT_THEME) else parseColor(COLOR_BG_INACTIVE, COLOR_BG_INACTIVE))
+        val inactBg = inactiveBgHex()
+        bg.setColor(if (active) parseColor(colorHex, DEFAULT_THEME) else parseColor(inactBg, inactBg))
         button.background = bg
         button.setTextColor(
-            Color.parseColor(if (active) COLOR_TEXT_ACTIVE else COLOR_TEXT_INACTIVE)
+            Color.parseColor(if (active) COLOR_TEXT_ACTIVE else inactiveTextHex())
         )
     }
 
     private fun styleNav(button: Button, active: Boolean) {
         val bg = GradientDrawable()
         bg.cornerRadius = dp(22).toFloat()
-        bg.setColor(Color.parseColor(if (active) "#4A90E2" else COLOR_BG_INACTIVE))
+        bg.setColor(Color.parseColor(if (active) "#4A90E2" else inactiveBgHex()))
         button.background = bg
         button.setTextColor(
-            Color.parseColor(if (active) COLOR_TEXT_ACTIVE else COLOR_TEXT_INACTIVE)
+            Color.parseColor(if (active) COLOR_TEXT_ACTIVE else inactiveTextHex())
         )
     }
 
@@ -349,25 +420,223 @@ class MainActivity : ComponentActivity() {
             .apply()
     }
 
+    private fun currentVersion(): String = try {
+        packageManager.getPackageInfo(packageName, 0).versionName
+    } catch (e: Exception) {
+        ""
+    }
+
     private fun checkForUpdate() {
-        UpdateChecker.check { latest, url ->
-            val current = try {
-                packageManager.getPackageInfo(packageName, 0).versionName
-            } catch (e: Exception) {
-                ""
-            }
-            if (UpdateChecker.isNewer(latest, current)) {
-                showUpdateDialog(latest, url)
+        UpdateChecker.check { latest, url, notes ->
+            if (UpdateChecker.isNewer(latest, currentVersion())) {
+                hasUpdate = true
+                latestVersion = latest
+                updateUrl = url
+                updateNotes = notes
+                settingsDot.visibility = View.VISIBLE
             }
         }
     }
 
-    private fun showUpdateDialog(latest: String, url: String) {
+    private fun showSettingsDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_settings, null)
+        view.findViewById<TextView>(R.id.tvCurVersion).text = "v${currentVersion()}"
+        val latestRow = view.findViewById<View>(R.id.latestRow)
+        val label = view.findViewById<TextView>(R.id.tvUpdateNotesLabel)
+        val scroll = view.findViewById<View>(R.id.scrollUpdateNotes)
+        val content = view.findViewById<TextView>(R.id.tvUpdateNotes)
+        val status = view.findViewById<TextView>(R.id.tvUpdateStatus)
+        val builder = AlertDialog.Builder(this).setView(view)
+        if (hasUpdate) {
+            latestRow.visibility = View.VISIBLE
+            view.findViewById<TextView>(R.id.tvLatestVersion).text = "v$latestVersion"
+            if (updateNotes.isNotEmpty()) {
+                label.visibility = View.VISIBLE
+                scroll.visibility = View.VISIBLE
+                content.text = updateNotes
+            }
+            status.text = "检测到新版本，可点击下方按钮下载安装。"
+            builder.setPositiveButton("下载更新") { _, _ -> startDownload(updateUrl) }
+        } else {
+            status.text = "当前已是最新版本。"
+        }
+        builder.setNegativeButton("关闭", null).show()
+    }
+
+    private fun todayKey(): String =
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+    private fun yesterdayKey(): String =
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(System.currentTimeMillis() - 86400000L))
+
+    private fun loadMerchantHistory(): List<JSONObject> {
+        val raw = prefs.getString(KEY_MERCHANT_HISTORY, null) ?: return emptyList()
+        return try {
+            val arr = JSONArray(raw)
+            val out = ArrayList<JSONObject>()
+            for (i in 0 until arr.length()) {
+                val o = arr.optJSONObject(i) ?: continue
+                out.add(o)
+            }
+            out
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun saveMerchantToday(round: String, next: String, items: List<MerchantItem>) {
+        val date = todayKey()
+        val itemArr = JSONArray()
+        for (it in items) {
+            itemArr.put(
+                JSONObject()
+                    .put("name", it.name)
+                    .put("category", it.category)
+                    .put("price", it.price)
+                    .put("limit", it.limit)
+            )
+        }
+        val rec = JSONObject()
+        rec.put("date", date)
+        rec.put("round", round)
+        rec.put("next", next)
+        rec.put("items", itemArr)
+        val list = loadMerchantHistory().filter { it.optString("date") != date }.toMutableList()
+        list.add(0, rec)
+        list.sortByDescending { it.optString("date") }
+        val keep = list.take(2)
+        val out = JSONArray()
+        for (r in keep) out.put(r)
+        prefs.edit().putString(KEY_MERCHANT_HISTORY, out.toString()).apply()
+    }
+
+    private fun fetchMerchant() {
+        Thread {
+            try {
+                val url = URL("https://rocokingdomworld.org/data/merchant.json")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.connectTimeout = 8000
+                conn.readTimeout = 8000
+                conn.requestMethod = "GET"
+                val body = conn.inputStream.bufferedReader().use { it.readText() }
+                val json = JSONObject(body)
+                val round = json.optString("round", "")
+                val next = json.optString("nextRefreshBeijing", "")
+                val items = ArrayList<MerchantItem>()
+                val arr = json.optJSONArray("items")
+                if (arr != null) {
+                    for (i in 0 until arr.length()) {
+                        val o = arr.optJSONObject(i) ?: continue
+                        val name = o.optString("name", "").trim()
+                        if (name.isEmpty()) continue
+                        items.add(
+                            MerchantItem(
+                                name,
+                                o.optString("category", ""),
+                                o.optString("price", ""),
+                                o.optString("limit", "")
+                            )
+                        )
+                    }
+                }
+                runOnUiThread {
+                    saveMerchantToday(round, next, items)
+                    merchantItems = items
+                    merchantRound = round
+                    merchantNext = next
+                    merchantNextMs = parseNextMs(next)
+                    updateMerchantStatus()
+                    merchantHandler.removeCallbacks(merchantTicker)
+                    merchantHandler.post(merchantTicker)
+                }
+            } catch (e: Exception) {
+                runOnUiThread { updateMerchantStatus() }
+            }
+        }.start()
+    }
+
+    private fun parseNextMs(s: String): Long {
+        return try {
+            val f = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+            f.timeZone = java.util.TimeZone.getTimeZone("Asia/Shanghai")
+            f.parse(s)?.time ?: 0L
+        } catch (e: Exception) {
+            0L
+        }
+    }
+
+    private fun fmt(ms: Long): String {
+        val h = ms / 3600000
+        val m = (ms % 3600000) / 60000
+        val s = (ms % 60000) / 1000
+        return String.format(Locale.US, "%02d:%02d:%02d", h, m, s)
+    }
+
+    private fun updateMerchantStatus() {
+        val today = loadMerchantHistory().firstOrNull { it.optString("date") == todayKey() }
+        if (today == null) {
+            tvMerchantStatus.text = "今日未探索到"
+            return
+        }
+        val round = today.optString("round", "")
+        val items = today.optJSONArray("items")
+        val cnt = if (items != null) items.length() else 0
+        val next = today.optString("next", "")
+        val remain = parseNextMs(next) - System.currentTimeMillis()
+        tvMerchantStatus.text = if (remain > 0) {
+            "第${round}轮 · ${cnt}件 · 商人离开 ${fmt(remain)}"
+        } else {
+            "第${round}轮 · ${cnt}件 · 数据日期 ${today.optString("date")}"
+        }
+    }
+
+    private fun openMerchantDialog() {
+        val history = loadMerchantHistory().take(2)
+        if (history.isEmpty()) {
+            Toast.makeText(this, "暂无商人记录，请联网获取后重试", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val today = todayKey()
+        val yest = yesterdayKey()
+        val sb = StringBuilder()
+        if (history.none { it.optString("date") == today }) {
+            sb.append("今日未探索到，以下为最近记录。\n\n")
+        }
+        for (rec in history) {
+            val date = rec.optString("date", "")
+            val label = when (date) {
+                today -> "今天 ${date}"
+                yest -> "昨天 ${date}"
+                else -> date
+            }
+            val round = rec.optString("round", "")
+            val next = rec.optString("next", "")
+            sb.append("【").append(label).append("】第").append(round).append("轮")
+            if (next.isNotEmpty() && parseNextMs(next) > System.currentTimeMillis()) {
+                sb.append(" · 下次刷新 ").append(next)
+            }
+            sb.append("\n")
+            val arr = rec.optJSONArray("items")
+            if (arr != null) {
+                for (i in 0 until arr.length()) {
+                    val it = arr.optJSONObject(i)
+                    if (it == null) continue
+                    val name = it.optString("name", "")
+                    sb.append("  ▪ ").append(name)
+                    val cat = it.optString("category", "")
+                    if (cat.isNotEmpty()) sb.append("（").append(cat).append("）")
+                    sb.append("  ").append(it.optString("price", "0")).append(" 洛克贝")
+                    val lim = it.optString("limit", "")
+                    if (lim.isNotEmpty()) sb.append(" · 限购 ").append(lim)
+                    sb.append("\n")
+                }
+            }
+            sb.append("\n")
+        }
         AlertDialog.Builder(this)
-            .setTitle("发现新版本 v$latest")
-            .setMessage("洛克精灵册 v$latest 已发布，是否立即下载更新安装？")
-            .setPositiveButton("下载") { _, _ -> startDownload(url) }
-            .setNegativeButton("稍后", null)
+            .setTitle("远行商人 · 近两日记录")
+            .setMessage(sb.toString().trim())
+            .setPositiveButton("知道了", null)
             .show()
     }
 
@@ -498,6 +767,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun showPage(index: Int) {
+        currentPage = index
         pageTracking.visibility = if (index == 0) View.VISIBLE else View.GONE
         pageDex.visibility = if (index == 1) View.VISIBLE else View.GONE
         styleNav(btnNav1, index == 0)
@@ -509,7 +779,45 @@ class MainActivity : ComponentActivity() {
             pageDex.addView(view)
             dexPage = DexPage(context, view)
             dexPage?.init()
+            dexPage?.setNight(nightMode)
         }
+    }
+
+    private fun applyTheme(night: Boolean) {
+        nightMode = night
+        prefs.edit().putBoolean(KEY_NIGHT, night).apply()
+        findViewById<View>(R.id.rootMain).setBackgroundResource(if (night) R.drawable.bg_app_dark else R.drawable.bg_app)
+        for (c in listOf<View?>(encounterCard, merchantCard, seasonPanel, bottomNav)) {
+            c?.setBackgroundResource(if (night) R.drawable.bg_panel_dark else R.drawable.bg_panel)
+        }
+        btnThemeIcon.setTextColor(Color.parseColor(if (night) "#F2C94C" else "#1F6FD6"))
+        btnThemeIcon.text = if (night) "🌙" else "☀️"
+        tvEncPlaceholder.setBackgroundResource(if (night) R.drawable.bg_placeholder_dark else R.drawable.bg_placeholder)
+        recolorTexts(findViewById(R.id.rootMain), night)
+        pokemonAdapter.night = night
+        pokemonAdapter.notifyDataSetChanged()
+        dexPage?.setNight(night)
+        applyTabStyles()
+        styleNav(btnNav1, currentPage == 0)
+        styleNav(btnNav2, currentPage == 1)
+    }
+
+    private fun recolorTexts(view: View, night: Boolean) {
+        val light = Color.parseColor("#E6EAF2")
+        val sub = Color.parseColor("#B6C0D4")
+        fun walk(v: View) {
+            if (v === btnThemeIcon) return
+            if (v is TextView && v !is Button) {
+                if (!savedColors.containsKey(v)) savedColors[v] = v.currentTextColor
+                val e = v as? android.widget.EditText
+                v.setTextColor(if (night) light else savedColors[v] ?: light)
+                if (e != null) e.setHintTextColor(if (night) sub else e.currentHintTextColor)
+            }
+            if (v is android.view.ViewGroup) {
+                for (i in 0 until v.childCount) walk(v.getChildAt(i))
+            }
+        }
+        walk(view)
     }
 
     private fun parseColor(hex: String, fallback: String): Int {
