@@ -1,0 +1,132 @@
+﻿{
+    "season":  "S4",
+    "name":  "月涌狂想",
+    "themeColor":  "#B2BFD3",
+    "groups":  [
+                   {
+                       "type":  "金月",
+                       "label":  "金月异色",
+                       "color":  "#D4A843",
+                       "badge":  "金月"
+                   },
+                   {
+                       "type":  "赤月",
+                       "label":  "赤月异色",
+                       "color":  "#C0392B",
+                       "badge":  "赤月"
+                   }
+               ],
+    "pokemon":  [
+                    {
+                        "name":  "小灵菇",
+                        "type":  "金月",
+                        "attr1":  "幽",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "瑰眼仔",
+                        "type":  "金月",
+                        "attr1":  "恶",
+                        "attr2":  "虫",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "星星眼",
+                        "type":  "金月",
+                        "attr1":  "幻",
+                        "category":  "赛季奇遇"
+                    },
+                    {
+                        "name":  "芽眼魔",
+                        "type":  "金月",
+                        "attr1":  "恶",
+                        "attr2":  "水",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "小黑猫",
+                        "type":  "金月",
+                        "attr1":  "普通",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "玳龟",
+                        "type":  "金月",
+                        "attr1":  "幻",
+                        "category":  "赛季奇遇"
+                    },
+                    {
+                        "name":  "叮叮卯",
+                        "type":  "金月",
+                        "attr1":  "机械",
+                        "attr2":  "虫",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "小浣蛋",
+                        "type":  "金月",
+                        "attr1":  "恶",
+                        "category":  "赛季奇遇"
+                    },
+                    {
+                        "name":  "布灵",
+                        "type":  "金月",
+                        "attr1":  "幻",
+                        "attr2":  "光",
+                        "category":  "赛季奇遇"
+                    },
+                    {
+                        "name":  "觅觅蝠",
+                        "type":  "赤月",
+                        "attr1":  "翼",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "逗逗",
+                        "type":  "赤月",
+                        "attr1":  "萌",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "未完虫",
+                        "type":  "赤月",
+                        "attr1":  "幽",
+                        "attr2":  "虫",
+                        "category":  "赛季奇遇"
+                    },
+                    {
+                        "name":  "刺轮砣（上弦的样子）",
+                        "type":  "赤月",
+                        "attr1":  "毒",
+                        "attr2":  "萌",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "刺轮砣（下弦的样子）",
+                        "type":  "赤月",
+                        "attr1":  "毒",
+                        "attr2":  "萌",
+                        "category":  "常驻异色"
+                    },
+                    {
+                        "name":  "量风碗",
+                        "type":  "赤月",
+                        "attr1":  "翼",
+                        "attr2":  "机械",
+                        "category":  "赛季奇遇"
+                    },
+                    {
+                        "name":  "章脑丸",
+                        "type":  "赤月",
+                        "attr1":  "光",
+                        "attr2":  "水",
+                        "category":  "赛季奇遇"
+                    },
+                    {
+                        "name":  "幽铃",
+                        "type":  "赤月",
+                        "attr1":  "幽",
+                        "category":  "赛季奇遇"
+                    }
+                ]
+}
