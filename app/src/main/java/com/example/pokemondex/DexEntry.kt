@@ -53,6 +53,6 @@ object DexRepository {
             }
         } catch (e: Exception) {
         }
-        return result.sortedBy { it.no }
+        return result
     }
 }
